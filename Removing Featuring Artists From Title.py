@@ -55,10 +55,7 @@ for root, dirs, files in os.walk(music_directory):
                 if title:
                     # Find all featured artists from the title using both patterns
                     featured_artists_in_parentheses = pattern.findall(title)
-
-                    # Process title with pattern2, truncating if parentheses are found
-                    title_no_brackets = title.split("(")[0]  # Truncate the title at the first '(' to ignore anything in brackets
-                    featured_artists_without_parentheses = pattern2.findall(title_no_brackets)
+                    featured_artists_without_parentheses = pattern2.findall(title)
 
                     # Combine all featured artists found, split multiple artists by ',', '&', 'and'
                     all_featured_artists = []
@@ -71,23 +68,29 @@ for root, dirs, files in os.walk(music_directory):
                         # Increment the counter
                         match_count += 1
 
-                        # Remove the patterns from the title
+                        # Remove only the "(feat. Artist)" portion from the title, keeping any other parentheses content
                         new_title = pattern.sub("", title)  # Removes "(feat. Artist)"
-                        new_title = pattern2.sub("", new_title)  # Removes "feat. Artist" without brackets
+                        new_title = pattern2.sub("", new_title)  # Removes "feat. Artist" without parentheses
                         new_title = new_title.strip()  # Trim any trailing/leading whitespace
-                        
+
+                        # Keep any remaining parentheses content (i.e., not related to featured artists)
+                        # by only removing the part of the parentheses that matched the feature pattern
+                        if "(" in title and ")" in title:
+                            remaining_parentheses_content = title[title.find("("):title.rfind(")")+1]
+                            if not pattern.search(remaining_parentheses_content):  # If it's not a "feat." pattern
+                                new_title += f" {remaining_parentheses_content}"
+
                         # Add featured artists to the artist field, ensuring the original artist is listed first
                         updated_artist_field = add_featured_artists_to_artist_field(artist, all_featured_artists)
 
                         # Update the title and artist in the ID3 tags
-                        audio["title"] = new_title
+                        audio["title"] = new_title.strip()
                         audio["artist"] = updated_artist_field
                         audio.save()
 
-                  # Print the original title, the new title, and the artist
+                        # Print the original title, the new title, and the artist
                         print(f"{match_count}. Original: {title} - {artist}")
                         print(f"    Updated: {new_title} - {updated_artist_field}\n")
-            
             
             except Exception as e:
                 print(f"Error processing {filename}: {e}")
