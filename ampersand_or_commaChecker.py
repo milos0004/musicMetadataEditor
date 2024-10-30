@@ -1,10 +1,6 @@
 
+from excludedArtists import excluded_artists
 
-
-
-excluded_artists = [
-
-]
 
 def filter_strings(string_list):
     filtered_list = []

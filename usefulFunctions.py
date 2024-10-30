@@ -1,4 +1,5 @@
 import re
+from excludedArtists import excluded_artists
 
 def find_phrases_in_field(metadata, field_name, phrases_dict):
     """
