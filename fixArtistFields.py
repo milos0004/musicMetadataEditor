@@ -4,21 +4,16 @@ from mutagen.easyid3 import EasyID3
 # List of excluded artists (these won't be modified or listed)
 from excludedArtists import excluded_artists
 
-# Directory to scan for music files
-music_directory = r"E:\Music not added yet"
+import re
 
-# List to store artists with "&" or ","
+# Prompt the user to enter the directory path to scan for music files
+music_directory = input("Please enter the path to your music directory: ")
+
+# Lists to store results
 artists_with_special_chars = []
-
-# List to store all encountered artists
 all_artists = []
-
-# List to store songs where artist fields are modified
 modified_songs = []
-
-# List to store artists where some but not all parts match
 some_match_artists = []
-
 
 # Helper function to analyze individual artists
 def analyze_artist(artist):
